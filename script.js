@@ -1,12 +1,84 @@
-var previousSearchList=document.getElementById('previousSearch')
-console.log(previousSearchList)
-var todayForcast=document.getElementById('todayForcast')
-console.log(todayForcast)
-var fiveDay=document.getElementsByClassName('fiveDay')
-var dayIds= []
-for (i=0;i<fiveDay.length;++i){
-    dayIds.push(fiveDay[i].id)
-    
+const previousSearchList = document.getElementById("previousSearch");
+console.log(previousSearchList);
+var todayForcast = document.getElementById("todayForcast");
+console.log(todayForcast);
+var fiveDay = document.getElementsByClassName("fiveDay");
+var dayIds = [];
+for (i = 0; i < fiveDay.length; ++i) {
+  dayIds.push(fiveDay[i].id);
 }
-console.log(dayIds)
+const inputBtn = document.getElementById("input-button");
+const key = "d8d66952229750cd88a614838cc1d8a0";
+const searchInput = document.getElementById("search-input");
+const humidity = document.getElementById("humidity");
+const wind = document.getElementById("wind");
+const temp = document.getElementById("temp");
+const todayHeader = document.getElementById("today-header");
+const saveBtn = document.getElementById("save-btn");
+console.log(dayIds);
 
+const saveSearch = () => {
+  const input = searchInput.value;
+  const [city, state] = input.split(",");
+  if (!input) {
+    alert("Enter a city to search");
+    return;
+  }
+  const previousSearches =
+    JSON.parse(localStorage.getItem("previousSearches")) || [];
+  previousSearches.push({ city, state });
+  localStorage.setItem("previousSearches", JSON.stringify(previousSearches));
+  renderPreviousSearches();
+};
+
+const renderPreviousSearches = () => {
+  previousSearchList.innerHTML = "";
+  const previousSearches =
+    JSON.parse(localStorage.getItem("previousSearches")) || [];
+  previousSearches.forEach((search, index) => {
+    const previousSearchButton = document.createElement("button");
+    previousSearchButton.innerText = `${search.city}, ${search.state}`;
+    previousSearchButton.addEventListener("click", () => {
+      searchInput.value = `${search.city}, ${search.state}`;
+      getWeather();
+    });
+    previousSearchList.appendChild(previousSearchButton);
+  });
+};
+
+const getWeather = () => {
+  const input = searchInput.value;
+  const [city, state] = input.split(",");
+  if (!input) {
+    alert("Enter a city to search");
+    return;
+  }
+  const requestURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city},US-${state}&appid=${key}&units=imperial`;
+  fetch(requestURL)
+    .then(function (response) {
+      if (response.ok) {
+        return response.json();
+      } else if (response !== 200) {
+        alert("No weather information found");
+      }
+    })
+    .then(function (data) {
+      const latitude = data.city.coord.lat;
+      const longitude = data.city.coord.lon;
+      const getCurrentWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${key}&units=imperial`;
+      const getForcast = `https://api.openweathermap.org/data/2.5/forcast?lat=${latitude}&lon=${longitude}&appid=${key}&units=imperial`;
+      fetch(getCurrentWeather)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function update(data) {
+          todayHeader.innerHTML = `${data.name}`;
+          temp.innerHTML = `Temperature: ${data.main.feels_like}&deg;F`;
+          wind.innerHTML = `Wind: ${data.wind.speed} MPH`;
+          humidity.innerHTML = `Humidity: ${data.main.humidity}%`;
+        });
+    });
+};
+
+inputBtn.addEventListener("click", getWeather);
+saveBtn.addEventListener("click", saveSearch);
