@@ -20,12 +20,19 @@ console.log(dayIds);
 const saveSearch = () => {
   const input = searchInput.value;
   const [city, state] = input.split(",");
-  if (!input) {
-    alert("Enter a city to search");
-    return;
-  }
   const previousSearches =
     JSON.parse(localStorage.getItem("previousSearches")) || [];
+  const searchExists = previousSearches.some((search) => {
+    return (
+      search.city.toLowerCase() === city.toLowerCase() &&
+      search.state.toLowerCase() === state.toLowerCase()
+    );
+  });
+
+  if (searchExists) {
+    alert("This city is already saved");
+    return;
+  }
   previousSearches.push({ city, state });
   localStorage.setItem("previousSearches", JSON.stringify(previousSearches));
   renderPreviousSearches();
@@ -37,6 +44,10 @@ const renderPreviousSearches = () => {
     JSON.parse(localStorage.getItem("previousSearches")) || [];
   previousSearches.forEach((search, index) => {
     const previousSearchButton = document.createElement("button");
+    previousSearchButton.classList.add(`btn`);
+    previousSearchButton.classList.add(`btn-info`);
+    previousSearchButton.classList.add(`previous`);
+    previousSearchButton.classList.add(`border-dark`);
     previousSearchButton.innerText = `${search.city}, ${search.state}`;
     previousSearchButton.addEventListener("click", () => {
       searchInput.value = `${search.city}, ${search.state}`;
@@ -66,7 +77,7 @@ const getWeather = () => {
       const latitude = data.city.coord.lat;
       const longitude = data.city.coord.lon;
       const getCurrentWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${key}&units=imperial`;
-      const getForcast = `https://api.openweathermap.org/data/2.5/forcast?lat=${latitude}&lon=${longitude}&appid=${key}&units=imperial`;
+      const getForcast = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${key}&units=imperial`;
       fetch(getCurrentWeather)
         .then(function (response) {
           return response.json();
@@ -77,8 +88,53 @@ const getWeather = () => {
           wind.innerHTML = `Wind: ${data.wind.speed} MPH`;
           humidity.innerHTML = `Humidity: ${data.main.humidity}%`;
         });
+      fetch(getForcast)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          for (let i = 0; i < dayIds.length; i++) {
+            const dayId = dayIds[i];
+            const card = document.getElementById(dayId);
+            const forecastData = data.list[i];
+
+            const date = new Date(forecastData.dt_txt).toLocaleDateString();
+            const temperature = forecastData.main.temp;
+            const description = forecastData.weather[0].description;
+            const icon = forecastData.weather[0].icon;
+            const windSpeed = forecastData.wind.speed;
+            const humidity = forecastData.humidity;
+
+            const temperatureListItem = document.createElement("li");
+            temperatureListItem.innerHTML = `Temperature: ${temperature}&deg;F`;
+
+            const windSpeedListItem = document.createElement("li");
+            windSpeedListItem.innerHTML = `WindSpeed: ${windSpeed}`;
+
+            const humidityListItem = document.createElement("li");
+            humidityListItem.innerHTML = `humidity: ${humidity}`;
+
+            const descriptionListItem = document.createElement("li");
+            descriptionListItem.innerHTML = `Description: ${description}`;
+
+            const iconUrl = `http://openweathermap.org/img/w/${icon}.png`;
+            const iconImg = document.createElement("img");
+            iconImg.src = iconUrl;
+
+            card.querySelector("h3").innerHTML = date;
+            const cardBody = card.querySelector(".card-body");
+            while (cardBody.firstChild) {
+              cardBody.removeChild(cardBody.firstChild);
+            }
+            cardBody.appendChild(temperatureListItem);
+            cardBody.appendChild(descriptionListItem);
+            cardBody.appendChild(iconImg);
+
+            card.classList.remove("hidden");
+          }
+        });
     });
 };
-
+renderPreviousSearches();
 inputBtn.addEventListener("click", getWeather);
 saveBtn.addEventListener("click", saveSearch);
