@@ -15,20 +15,27 @@ const wind = document.getElementById("wind");
 const temp = document.getElementById("temp");
 const todayHeader = document.getElementById("today-header");
 const saveBtn = document.getElementById("save-btn");
+const currentWeather = document.getElementById("current-weather");
+const getStartedMsg = document.getElementById("get-started");
+const clearBtn = document.getElementById("clear-btn");
 console.log(dayIds);
 
 const saveSearch = () => {
-  const input = searchInput.value;
-  const [city, state] = input.split(",");
+  const searchTitle = todayHeader.innerHTML;
+  const [city, state] = searchTitle.split(",");
   const previousSearches =
     JSON.parse(localStorage.getItem("previousSearches")) || [];
   const searchExists = previousSearches.some((search) => {
     return (
       search.city.toLowerCase() === city.toLowerCase() &&
+      search.state &&
       search.state.toLowerCase() === state.toLowerCase()
     );
   });
-
+  if (searchTitle === "") {
+    alert("Please enter a city to save");
+    return;
+  }
   if (searchExists) {
     alert("This city is already saved");
     return;
@@ -42,12 +49,13 @@ const renderPreviousSearches = () => {
   previousSearchList.innerHTML = "";
   const previousSearches =
     JSON.parse(localStorage.getItem("previousSearches")) || [];
-  previousSearches.forEach((search, index) => {
+  previousSearches.forEach((search) => {
     const previousSearchButton = document.createElement("button");
     previousSearchButton.classList.add(`btn`);
     previousSearchButton.classList.add(`btn-info`);
     previousSearchButton.classList.add(`previous`);
     previousSearchButton.classList.add(`border-dark`);
+
     if (search.state && search.city) {
       previousSearchButton.innerText = `${search.city}, ${search.state}`;
       previousSearchButton.addEventListener("click", () => {
@@ -64,6 +72,11 @@ const renderPreviousSearches = () => {
 
     previousSearchList.appendChild(previousSearchButton);
   });
+};
+
+const clearHistory = () => {
+  localStorage.clear();
+  previousSearchList.innerHTML = "";
 };
 
 const getWeather = () => {
@@ -92,10 +105,13 @@ const getWeather = () => {
           return response.json();
         })
         .then(function update(data) {
-          todayHeader.innerHTML = `${data.name}`;
+          todayHeader.innerHTML = `${input}`;
           temp.innerHTML = `Temperature: ${data.main.feels_like}&deg;F`;
           wind.innerHTML = `Wind: ${data.wind.speed} MPH`;
           humidity.innerHTML = `Humidity: ${data.main.humidity}%`;
+          currentWeather.classList.remove("hidden");
+          saveBtn.classList.remove("hidden");
+          getStartedMsg.classList.add("hidden");
         });
       fetch(getForcast)
         .then(function (response) {
@@ -148,3 +164,4 @@ const getWeather = () => {
 renderPreviousSearches();
 inputBtn.addEventListener("click", getWeather);
 saveBtn.addEventListener("click", saveSearch);
+clearBtn.addEventListener("click", clearHistory);

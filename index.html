@@ -19,20 +19,23 @@
                 <input placeholder="City,State" class="mb-2 " id="search-input"></input>
                 <button class="btn btn-outline-dark bg-info " id="input-button">Search</button>
                 <div class="border-top border-dark mt-2 mp-2 justify-content-center">
-                    <ul id="previousSearch">
-                        <li>Lorem Ipsum</li>
-                    </ul>
+                    <div class='row col-8' id="previousSearch">
+                        <!-- Button's Populate Here -->
+                        
+                    </div>
+                    <button id="clear-btn" class="btn btn-danger">Clear History</button>
                 </div>
             </section>
         <section id="weatherContainer" class=" col-lg-10 col-md-9 col-sm-12">
             
             <div id="todayForcast" class="card border border-dark  p-2">
-                <button class="btn btn-success" id="save-btn">Save</button>
-                <h2 class="card-header" id="today-header">City (M/DD/YYY) </h2>
-                <ul>
-                    <li id="temp">Temperature: </li>
-                    <li id="wind">Wind: </li>
-                    <li id="humidity">Humidity: </li>
+                <h2 id=get-started class="card-header">GET STARTED BY SEARCHING A CITY</h2>
+                <button class="btn btn-success hidden" id="save-btn">Save</button>
+                <h2 class="card-header" id="today-header"></h2>
+                <ul  id=current-weather class="hidden card-body">
+                    <li id="temp" >Temperature: </li>
+                    <li id="wind" >Wind: </li>
+                    <li id="humidity" >Humidity: </li>
                 </ul>
         </div>
             <section id="fiveDayEle" class="bg-body-tertiary row m-3 p-2 justify-content-between">
