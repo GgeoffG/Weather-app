@@ -97,22 +97,22 @@ const getWeather = () => {
             const dayId = dayIds[i];
             const card = document.getElementById(dayId);
             const forecastData = data.list[i];
-
+            console.log(forecastData);
             const date = new Date(forecastData.dt_txt).toLocaleDateString();
             const temperature = forecastData.main.temp;
             const description = forecastData.weather[0].description;
             const icon = forecastData.weather[0].icon;
             const windSpeed = forecastData.wind.speed;
-            const humidity = forecastData.humidity;
+            const humidity = forecastData.main.humidity;
 
             const temperatureListItem = document.createElement("li");
             temperatureListItem.innerHTML = `Temperature: ${temperature}&deg;F`;
 
             const windSpeedListItem = document.createElement("li");
-            windSpeedListItem.innerHTML = `WindSpeed: ${windSpeed}`;
+            windSpeedListItem.innerHTML = `WindSpeed: ${windSpeed} MPH`;
 
             const humidityListItem = document.createElement("li");
-            humidityListItem.innerHTML = `humidity: ${humidity}`;
+            humidityListItem.innerHTML = `humidity: ${humidity}%`;
 
             const descriptionListItem = document.createElement("li");
             descriptionListItem.innerHTML = `Description: ${description}`;
@@ -127,6 +127,8 @@ const getWeather = () => {
               cardBody.removeChild(cardBody.firstChild);
             }
             cardBody.appendChild(temperatureListItem);
+            cardBody.appendChild(windSpeedListItem);
+            cardBody.appendChild(humidityListItem);
             cardBody.appendChild(descriptionListItem);
             cardBody.appendChild(iconImg);
 
