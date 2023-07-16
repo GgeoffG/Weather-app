@@ -48,11 +48,20 @@ const renderPreviousSearches = () => {
     previousSearchButton.classList.add(`btn-info`);
     previousSearchButton.classList.add(`previous`);
     previousSearchButton.classList.add(`border-dark`);
-    previousSearchButton.innerText = `${search.city}, ${search.state}`;
-    previousSearchButton.addEventListener("click", () => {
-      searchInput.value = `${search.city}, ${search.state}`;
-      getWeather();
-    });
+    if (search.state && search.city) {
+      previousSearchButton.innerText = `${search.city}, ${search.state}`;
+      previousSearchButton.addEventListener("click", () => {
+        searchInput.value = `${search.city}, ${search.state}`;
+        getWeather();
+      });
+    } else {
+      previousSearchButton.innerText = `${search.city}`;
+      previousSearchButton.addEventListener("click", () => {
+        searchInput.value = `${search.city}`;
+        getWeather();
+      });
+    }
+
     previousSearchList.appendChild(previousSearchButton);
   });
 };
@@ -97,7 +106,6 @@ const getWeather = () => {
             const dayId = dayIds[i];
             const card = document.getElementById(dayId);
             const forecastData = data.list[i];
-            console.log(forecastData);
             const date = new Date(forecastData.dt_txt).toLocaleDateString();
             const temperature = forecastData.main.temp;
             const description = forecastData.weather[0].description;
